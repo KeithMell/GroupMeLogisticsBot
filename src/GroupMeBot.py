@@ -1,18 +1,20 @@
-import time as t
-import requests as rqsts
+import time
+import requests
 from src import spreadsheet
 
 s_url = 'https://api.groupme.com/v3/groups/44100309/messages'  # smaller url
-rqst_prams = {'token': 'V34ln1DMe3q1yZPu8dGWnPhzzoPQxfY61CzNOwXO'}
-resp_msgs = rqsts.get(s_url, params=rqst_prams).json()['response']['messages']
+request_parameters = {'token': 'V34ln1DMe3q1yZPu8dGWnPhzzoPQxfY61CzNOwXO'}
+resp_msgs = requests.get(s_url, params=request_parameters).json()['response']['messages']
 # The 20 most recent messages, https://dev.groupme.com/docs/v3#messages
 
-new_prams = {'token': 'V34ln1DMe3q1yZPu8dGWnPhzzoPQxfY61CzNOwXO',
-             'after_id': resp_msgs[19]["id"]}
+new_prams = {
+    'token': 'V34ln1DMe3q1yZPu8dGWnPhzzoPQxfY61CzNOwXO',
+    'after_id': resp_msgs[19]["id"]
+}
 
 
 while 1:
-    response = rqsts.get(s_url, params=new_prams)
+    response = requests.get(s_url, params=new_prams)
     new_msgs = response.json()['response']['messages']
     # gets the most recent events, after the id of the last event called.
 
@@ -25,10 +27,10 @@ while 1:
         # implement this command to reload the name conversion in the sheet.
         elif "event" in message:  # if msgs has 'event' then we care about it
             event = message["event"]
-            if "event.user" in event["type"]:  # only event responses have the substring 'event.user'
-                ans = event["type"]  # this should be the answer to the event, eg not_going.
-                nick = event["data"]["user"]["nickname"]  # this should be the GroupMe nickname
-                eventName = event["data"]["event"]["name"]  # this should be the GroupMe events name
-                spreadsheet.change_answer(ans, nick, eventName)  # updates the spreadsheet
+            if "calendar.event.user" in event["type"]:
+                answer = event["type"]  # eg not_going.
+                nickname = event["data"]["user"]["nickname"]  # GroupMe nickname
+                eventName = event["data"]["event"]["name"]  # event name
+                spreadsheet.change_answer(answer, nickname, eventName)
         new_prams['after_id'] = message["id"]
-    t.sleep(60)
+    time.sleep(60)
