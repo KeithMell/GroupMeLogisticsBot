@@ -1,24 +1,48 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-
-# use creds to create a client to interact with the Google Drive API
+# use credentials to create a client to interact with the Google Drive API
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
-creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name('../client_secret.json', scope)
 client = gspread.authorize(creds)
 
 # Find a workbook by name and open the first sheet
 # Make sure you use the right name here.
-fullSheet = client.open("RealCopyLogisticsSheet")
-sheet = fullSheet.worksheet('September 1 to 30')
+fullSheet = client.open("RealCopyLogisticsSheet")  # copy of the logistics sheet
+sheet_name = 'September 1 to 30'
+sheet = fullSheet.worksheet(sheet_name)
+sheet_conversions = fullSheet.worksheet('Name Conversion')
 
 
+lower_name_conversion = {  # simple dictionary for conversion
+    'Karen Mellendorf': 'Karen',
+    'Kayla Mellendorf': 'Kayla',
+    'Brian Mellendorf': 'Brian',
+    'Nora': 'Nora',
+    'Keith Mellendorf': 'Keith',
+    'Kyle Brown': 'Kyle B'
+}
+name_conversion = {k: v.upper() for (k, v) in lower_name_conversion.items()}
+# capitalizes the names for easier comparison
+
+answerConversion = {  # simple dictionary for conversion
+    'calendar.event.user.going': 'Yes',
+    'calendar.event.user.not_going': 'No',
+    'calendar.event.user.undecided': 'Maybe'
+}
 
 
-def sheet_change_answer(answer, nickname, event_name_lower):
-    answer = answerConversion[answer]  # changing the group Me response to 'yes', 'no', or 'maybe'
+def update_sheet(new_name): # updating the sheet to be edited
+    global sheet
+    sheet = fullSheet.worksheet(new_name)
+
+
+def change_answer(answer, nickname, event_name_lower):
+    answer = answerConversion[answer]
+    # changing the group Me response to 'yes', 'no', or 'maybe'
+
     if nickname in name_conversion:
         name = name_conversion[nickname]  # Changing group Me names to Spreadsheet Names
     else:
@@ -30,38 +54,7 @@ def sheet_change_answer(answer, nickname, event_name_lower):
     event_list = [j.upper() for j in lower_event_list]  # capitalizing the list of events
     if (name in name_list) & (event_name in event_list):
         sheet.update_cell(1 + name_list.index(name), 1 + event_list.index(event_name), answer)
-        print(answer, name, event_name)
-        print("\n")
+        print(answer, name, event_name, "\n")
     else:
         print("Either name or Event was entered wrong")
         # maybe have a blank sheet that tells when something was entered wrong.
-
-
-
-#
-# Maybe use a dict to compare groupMe names to spreadsheet names
-#
-# name = input("Enter your name? ")
-# meeting = input("which meeting you are answering? ")
-# response = input("are you attending? ")
-name = 'Abigail'
-meeting = 'Tuesday Meeting1'
-response = 'Yes'
-changingsheet(name, response, meeting)
-#
-
-
-nameConversion = {
-    'Aaron': 'Aaron Jong',
-    'Abigail': 'Abigail Smith',
-    'Adi': 'Aditya Prakash',
-    'Anish A / Anthony': 'Anish Toomu',
-    'Bella': 'Bella Ramoin',
-    'Ben': 'Benjamin Beach',
-    'Connor': 'Connor Mitchell',
-    'Dominic': 'Dominic Seidita',
-    'Duncan': 'Duncan Cameron',
-}
-
-print(nameConversion['Aaron'])
-print(nameConversion['Abigail'])
