@@ -15,20 +15,27 @@ fullSheet = client.open("RealCopyLogisticsSheet")
 sheet = fullSheet.worksheet('September 1 to 30')
 
 
-namelist = sheet.col_values(1)
-eventlist = sheet.row_values(1)
-print(eventlist)
-print(namelist)
 
-def changingsheet(person, answer, event):
-    if (person in namelist) & (event in eventlist):
-        sheet.update_cell(1 + namelist.index(person), 1 + eventlist.index(event), answer)
-        print(namelist.index(person))
-        print(eventlist.index(event))
-        print(answer)
-        print(sheet.cell( 1 + namelist.index(person), 1 + eventlist.index(event)))
+
+def sheet_change_answer(answer, nickname, event_name_lower):
+    answer = answerConversion[answer]  # changing the group Me response to 'yes', 'no', or 'maybe'
+    if nickname in name_conversion:
+        name = name_conversion[nickname]  # Changing group Me names to Spreadsheet Names
     else:
-        print("Either name or Event was typed wrong")
+        name = nickname
+    event_name = event_name_lower.upper()  # capitalizing the event name
+    lower_name_list = sheet.col_values(1)  # the first column of the spreadsheet, has all the names.
+    lower_event_list = sheet.row_values(1)  # the first row of the sheet, has all the event names
+    name_list = [i.upper() for i in lower_name_list]  # capitalizing the list of name
+    event_list = [j.upper() for j in lower_event_list]  # capitalizing the list of events
+    if (name in name_list) & (event_name in event_list):
+        sheet.update_cell(1 + name_list.index(name), 1 + event_list.index(event_name), answer)
+        print(answer, name, event_name)
+        print("\n")
+    else:
+        print("Either name or Event was entered wrong")
+        # maybe have a blank sheet that tells when something was entered wrong.
+
 
 
 #
