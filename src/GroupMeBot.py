@@ -25,7 +25,10 @@ while 1:
         if "LogisticsBot sheet" in message["text"]:
             sheet_name = message["text"][19:]  # takes just the sheet name
             spreadsheet.update_sheet(sheet_name)
-        elif "event" in message:  # if msgs has an 'event' then we care about it
+        # elif "LogisticsBot reload names" in message["text"]:
+        #    spreadsheet.reload_names
+        # implement this command to reload the name conversion in the sheet.
+        elif "event" in message:  # if msgs has 'event' then we care about it
             event = message["event"]
             if "event.user" in message["event"]["type"]:  # only event responses have the substring 'event.user'
                 ans = event["type"]  # this should be the answer to the event, eg not_going.

@@ -34,9 +34,13 @@ answerConversion = {  # simple dictionary for conversion
 }
 
 
-def update_sheet(new_name): # updating the sheet to be edited
+def update_sheet(new_name):  # updating the sheet to be edited
     global sheet
-    sheet = fullSheet.worksheet(new_name)
+    sheet_titles = [all_sheets.title for all_sheets in fullSheet.worksheets()]
+    if new_name in sheet_titles:
+        sheet = fullSheet.worksheet(new_name)
+    else:
+        print("wrong name")
 
 
 def change_answer(answer, nickname, event_name_lower):
