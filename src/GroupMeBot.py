@@ -8,11 +8,13 @@ request_parameters = {'token': 'V34ln1DMe3q1yZPu8dGWnPhzzoPQxfY61CzNOwXO'}
 # The 20 most recent messages, https://dev.groupme.com/docs/v3#messages
 resp_msgs = requests.get(url, params=request_parameters).json()['response']['messages']
 
-
 new_prams = {
     'token': 'V34ln1DMe3q1yZPu8dGWnPhzzoPQxfY61CzNOwXO',
     'after_id': resp_msgs[19]["id"]
 }
+
+# administrator GroupMe user ID's
+admins = ["9370956"]
 
 # reload the name conversion sheet once before entering loop
 spreadsheet.reload_name_conversion()
@@ -22,13 +24,17 @@ while 1:
     # gets the most recent events, after the id of the last event called.
 
     for message in new_msgs:
-        if "LogisticsBot sheet" in message["text"]:
-            sheet_name = message["text"][19:]  # takes just the sheet name
-            spreadsheet.update_sheet(sheet_name)
-            print("sheet updated")
-        elif "LogisticsBot reload names" in message["text"]:
-            spreadsheet.reload_name_conversion()
-            print("names reloaded")
+        if message["text"].startswith("LogisticsBot"):
+            if message["user_id"] in admins:
+                if "LogisticsBot sheet" in message["text"]:
+                    sheet_name = message["text"][19:]  # takes just the sheet name
+                    spreadsheet.update_sheet(sheet_name)
+                    print("sheet updated")
+                elif "LogisticsBot reload names" in message["text"]:
+                    spreadsheet.reload_name_conversion()
+                    print("names reloaded")
+            else:
+                print("unauthorized user")
         elif "event" in message:  # if msgs has 'event' then we care about it
             event = message["event"]
             if event["type"].startswith("calendar.event.user"):
