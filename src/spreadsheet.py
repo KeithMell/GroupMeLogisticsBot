@@ -15,17 +15,8 @@ sheet_name = 'September 1 to 30'
 sheet = fullSheet.worksheet(sheet_name)
 sheet_conversions = fullSheet.worksheet('Name Conversion')
 
-
-lower_name_conversion = {  # simple dictionary for conversion
-    'Karen Mellendorf': 'Karen',
-    'Kayla Mellendorf': 'Kayla',
-    'Brian Mellendorf': 'Brian',
-    'Nora': 'Nora',
-    'Keith Mellendorf': 'Keith',
-    'Kyle Brown': 'Kyle B'
-}
-name_conversion = {k: v.upper() for (k, v) in lower_name_conversion.items()}
-# capitalizes the names for easier comparison
+# Default dictionary for name conversions
+upper_name_dict = {"default": 0}
 
 answerConversion = {  # simple dictionary for conversion
     'calendar.event.user.going': 'Yes',
@@ -43,12 +34,21 @@ def update_sheet(new_name):  # updating the sheet to be edited
         print("wrong name")
 
 
+def reload_name_conversion():
+    global upper_name_dict
+    name_sheet = fullSheet.worksheet('Name Conversion')
+    group_me_names = name_sheet.col_values(1)
+    sheet_names = name_sheet.col_values(2)
+    lower_name_dict = dict(zip(group_me_names, sheet_names))
+    upper_name_dict = {k: v.upper() for (k, v) in lower_name_dict.items()}
+
+
 def change_answer(answer, nickname, event_name_lower):
     answer = answerConversion[answer]
     # changing the group Me response to 'yes', 'no', or 'maybe'
 
-    if nickname in name_conversion:
-        name = name_conversion[nickname]  # Changing group Me names to Spreadsheet Names
+    if nickname in upper_name_dict:
+        name = upper_name_dict[nickname]  # Changing group Me names to Spreadsheet Names
     else:
         name = nickname
     event_name = event_name_lower.upper()  # capitalizing the event name

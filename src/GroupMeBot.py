@@ -14,7 +14,8 @@ new_prams = {
     'after_id': resp_msgs[19]["id"]
 }
 
-
+# reload the name conversion sheet once before entering loop
+spreadsheet.reload_name_conversion()
 while 1:
     response = requests.get(url, params=new_prams)
     new_msgs = response.json()['response']['messages']
@@ -24,9 +25,10 @@ while 1:
         if "LogisticsBot sheet" in message["text"]:
             sheet_name = message["text"][19:]  # takes just the sheet name
             spreadsheet.update_sheet(sheet_name)
-        # elif "LogisticsBot reload names" in message["text"]:
-        #    spreadsheet.reload_names
-        # implement this command to reload the name conversion in the sheet.
+            print("sheet updated")
+        elif "LogisticsBot reload names" in message["text"]:
+            spreadsheet.reload_name_conversion()
+            print("names reloaded")
         elif "event" in message:  # if msgs has 'event' then we care about it
             event = message["event"]
             if event["type"].startswith("calendar.event.user"):
